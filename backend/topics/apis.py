@@ -41,6 +41,8 @@ class CategoryListApi(ApiAuthMixin, APIView):
 class TopicListApi(ApiAuthMixin, APIView):
     class FilterSerializer(serializers.Serializer):
         category = serializers.SlugField(required=False)
+        page = serializers.IntegerField(required=False, min_value=1, default=1)
+        page_size = serializers.IntegerField(required=False, min_value=1, max_value=100, default=30)
         status = serializers.ChoiceField(
             choices=["new", "studied", "review"],
             required=False,
@@ -67,18 +69,31 @@ class TopicListApi(ApiAuthMixin, APIView):
     def get(self, request):
         filters = self.FilterSerializer(data=request.query_params)
         filters.is_valid(raise_exception=True)
+        data = filters.validated_data
+        page = data.get("page") or 1
+        page_size = data.get("page_size") or 30
         topics = topic_list(
             user=request.user,
-            category_slug=filters.validated_data.get("category"),
-            status_filter=filters.validated_data.get("status"),
-            search=filters.validated_data.get("search") or None,
+            category_slug=data.get("category"),
+            status_filter=data.get("status"),
+            search=data.get("search") or None,
         )
+        total = topics.count()
+        offset = (page - 1) * page_size
+        topics = topics[offset: offset + page_size]
         serializer = self.OutputSerializer(
             topics,
             many=True,
             context={"request": request},
         )
-        return Response(serializer.data)
+        return Response(
+            {
+                "results": serializer.data,
+                "page": page,
+                "page_size": page_size,
+                "total": total,
+            }
+        )
 
 
 class TopicDetailApi(ApiAuthMixin, APIView):

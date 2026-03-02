@@ -63,7 +63,14 @@ watch(() => route.params.id, load)
   <div v-if="loading" class="text-slate-500 font-display font-bold">Завантаження…</div>
   <div v-else-if="topic" class="space-y-8">
     <div class="flex flex-col md:flex-row flex-wrap items-center justify-center md:justify-between gap-6 bg-[#fcd34d] p-6 rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_0px_#000]">
-      <h1 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight text-center md:text-left">{{ topic.title }}</h1>
+      <div class="text-center md:text-left">
+        <h1 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight">
+          {{ topic.title }}
+        </h1>
+        <p class="mt-1 text-xs md:text-sm font-display font-bold uppercase tracking-tight">
+          {{ topic.category_name }}
+        </p>
+      </div>
       <div class="flex flex-wrap justify-center gap-2 md:gap-3 w-full md:w-auto">
         <button
           type="button"

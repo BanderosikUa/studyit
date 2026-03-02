@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { topicsApi } from '../api/client'
 
@@ -9,6 +9,25 @@ const topics = ref([])
 const loading = ref(true)
 const search = ref('')
 const statusFilter = ref('')
+const page = ref(1)
+const pageSize = ref(30)
+const total = ref(0)
+
+const CATEGORY_BADGE_COLORS = {
+  django: 'bg-[#bfdbfe]',
+  docker: 'bg-[#facc15]',
+  git: 'bg-[#fecaca]',
+  'http-api': 'bg-[#a5f3fc]',
+  python: 'bg-[#bbf7d0]',
+  'tools-devops-linux': 'bg-[#fed7aa]',
+  algorithms: 'bg-[#e9d5ff]',
+  architecture: 'bg-[#fee2e2]',
+  async: 'bg-[#bae6fd]',
+  databases: 'bg-[#fef08a]',
+  oop: 'bg-[#ddd6fe]',
+  'dev-processes': 'bg-[#fecdd3]',
+  testing: 'bg-[#bbf7d0]',
+}
 
 const categorySlug = ref(route.query.category || '')
 
@@ -24,19 +43,47 @@ async function loadTopics() {
       category: categorySlug.value || undefined,
       status: statusFilter.value || undefined,
       search: search.value || undefined,
+      page: page.value,
+      page_size: pageSize.value,
     })
-    topics.value = data
+    topics.value = data.results || []
+    total.value = data.total ?? topics.value.length
+    page.value = data.page ?? page.value
+    pageSize.value = data.page_size ?? pageSize.value
   } finally {
     loading.value = false
   }
 }
 
-watch([categorySlug, statusFilter, search], loadTopics)
+watch([categorySlug, statusFilter, search], () => {
+  page.value = 1
+  loadTopics()
+})
 watch(() => route.query.category, (v) => { categorySlug.value = v || '' })
 
 onMounted(() => {
   loadCategories().then(loadTopics)
 })
+
+const totalPages = computed(() => {
+  if (!total.value || !pageSize.value) {
+    return 1
+  }
+  return Math.max(1, Math.ceil(total.value / pageSize.value))
+})
+
+function goToPage(newPage) {
+  if (newPage < 1 || newPage > totalPages.value || newPage === page.value) return
+  page.value = newPage
+  loadTopics()
+}
+
+function categoryBadgeClass(slug) {
+  const base =
+    'rounded-full border border-dashed border-black/40 px-2 py-0.5 text-[11px] font-display uppercase tracking-tight text-black/80'
+  const color = CATEGORY_BADGE_COLORS[slug] || 'bg-[#e5e7eb]'
+  return `${base} ${color}`
+}
 </script>
 
 <template>
@@ -79,18 +126,51 @@ onMounted(() => {
           :to="{ name: 'TopicDetail', params: { id: t.id } }"
           class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-xl border-[3px] border-black bg-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
         >
-          <span class="font-bold text-lg">{{ t.title }}</span>
-          <span
-            class="inline-block shrink-0 rounded-lg border-2 border-black px-3 py-1 font-display font-bold text-sm shadow-[2px_2px_0px_0px_#000]"
-            :class="{
-              'bg-[#a5f3fc]': t.status === 'new',
-              'bg-[#4ade80]': t.status === 'studied',
-              'bg-[#f97316] text-white': t.status === 'review',
-            }"
-          >
-            {{ t.status === 'new' ? 'Нова' : t.status === 'studied' ? 'Вивчено' : 'Повторити' }}
-          </span>
+          <div class="flex-1 min-w-0 mb-1 sm:mb-0">
+            <span class="block font-bold text-lg">
+              {{ t.title }}
+            </span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <span
+              class="inline-block shrink-0 rounded-lg border-2 border-black px-3 py-1 font-display font-bold text-sm shadow-[2px_2px_0px_0px_#000]"
+              :class="{
+                'bg-[#a5f3fc]': t.status === 'new',
+                'bg-[#4ade80]': t.status === 'studied',
+                'bg-[#f97316] text-white': t.status === 'review',
+              }"
+            >
+              {{ t.status === 'new' ? 'Нова' : t.status === 'studied' ? 'Вивчено' : 'Повторити' }}
+            </span>
+            <span :class="categoryBadgeClass(t.category_slug)">
+              {{ t.category_name }}
+            </span>
+          </div>
         </router-link>
+      </div>
+      <div
+        v-if="!loading && totalPages > 1"
+        class="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm font-display font-bold uppercase tracking-tight"
+      >
+        <button
+          type="button"
+          class="rounded-full border-[3px] border-black bg-white px-4 py-2 shadow-[3px_3px_0px_0px_#000] disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 hover:-translate-y-[2px] hover:-translate-x-[2px] transition-all"
+          :disabled="page === 1"
+          @click="goToPage(page - 1)"
+        >
+          ← Попередня
+        </button>
+        <span class="px-3 py-1">
+          Сторінка {{ page }} з {{ totalPages }}
+        </span>
+        <button
+          type="button"
+          class="rounded-full border-[3px] border-black bg-white px-4 py-2 shadow-[3px_3px_0px_0px_#000] disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 hover:-translate-y-[2px] hover:-translate-x-[2px] transition-all"
+          :disabled="page === totalPages"
+          @click="goToPage(page + 1)"
+        >
+          Наступна →
+        </button>
       </div>
     </div>
     </div>
