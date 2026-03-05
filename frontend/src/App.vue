@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 
@@ -7,6 +7,8 @@ const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+const theme = ref('light')
+const isDarkTheme = computed(() => theme.value === 'dark')
 const navigationItems = [
   {
     label: 'Дашборд',
@@ -33,10 +35,49 @@ function logout() {
 function isActiveLink(names) {
   return names.includes(route.name)
 }
+
+function applyTheme(nextTheme) {
+  const normalizedTheme = nextTheme === 'dark' ? 'dark' : 'light'
+  theme.value = normalizedTheme
+  document.documentElement.setAttribute('data-theme', normalizedTheme)
+}
+
+function toggleTheme() {
+  applyTheme(theme.value === 'dark' ? 'light' : 'dark')
+}
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('studyit-theme')
+  if (savedTheme === 'dark' || savedTheme === 'light') {
+    applyTheme(savedTheme)
+    return
+  }
+
+  const prefersDark =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+
+  applyTheme(prefersDark ? 'dark' : 'light')
+})
+
+watch(theme, (value) => {
+  localStorage.setItem('studyit-theme', value)
+})
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col font-sans">
+    <div class="fixed right-4 top-4 z-30">
+      <button
+        type="button"
+        class="theme-toggle"
+        :class="isDarkTheme ? 'theme-toggle-dark' : 'theme-toggle-light'"
+        @click="toggleTheme"
+      >
+        {{ isDarkTheme ? 'Темна тема' : 'Світла тема' }}
+      </button>
+    </div>
     <nav v-if="isAuthenticated" class="border-b-4 border-black bg-white sticky top-0 z-20 shadow-[0_4px_0_0_rgba(0,0,0,1)] mb-8">
       <div class="w-full max-w-[1180px] mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-center md:justify-between gap-4">
         <router-link :to="{ name: 'Dashboard' }" class="flex items-center justify-center md:justify-start gap-3 group w-full md:w-auto">

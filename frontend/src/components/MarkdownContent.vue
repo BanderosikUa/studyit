@@ -27,24 +27,28 @@ const html = computed(() => md.render(props.content || ''))
 </template>
 
 <style scoped>
+.markdown-body {
+  color: inherit;
+}
+
 .markdown-body :deep(pre) {
   overflow-x: auto;
-  background: #ffffff;
+  background: var(--markdown-pre-bg, #ffffff);
   padding: 1.25rem;
-  border: 3px solid #000;
+  border: 3px solid var(--markdown-border, #000);
   border-radius: 0.75rem;
-  box-shadow: 4px 4px 0px 0px #000;
+  box-shadow: 4px 4px 0px 0px var(--markdown-shadow, #000);
   margin: 1.5rem 0;
 }
 .markdown-body :deep(code) {
-  background: #fef08a;
+  background: var(--markdown-inline-code-bg, #fef08a);
   padding: 0.125rem 0.375rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.875rem;
-  border: 2px solid #000;
+  border: 2px solid var(--markdown-border, #000);
   border-radius: 0.375rem;
   font-weight: 700;
-  color: #000;
+  color: var(--markdown-inline-code-text, #000);
 }
 .markdown-body :deep(pre code) {
   background: transparent;
@@ -60,7 +64,7 @@ const html = computed(() => md.render(props.content || ''))
   text-transform: uppercase;
   margin-top: 2rem;
   margin-bottom: 1rem;
-  border-bottom: 3px solid #000;
+  border-bottom: 3px solid var(--markdown-border, #000);
   padding-bottom: 0.5rem;
 }
 .markdown-body :deep(h2) {
@@ -79,19 +83,31 @@ const html = computed(() => md.render(props.content || ''))
   margin-bottom: 0.5rem;
 }
 .markdown-body :deep(ul) {
-  list-style-type: square;
-  padding-left: 1.5rem;
-  margin-bottom: 1rem;
+  list-style-type: disc;
+  list-style-position: outside;
+  padding-left: 1.75rem;
+  margin: 1rem 0;
   font-weight: 500;
 }
 .markdown-body :deep(ol) {
   list-style-type: decimal;
-  padding-left: 1.5rem;
-  margin-bottom: 1rem;
+  list-style-position: outside;
+  padding-left: 1.75rem;
+  margin: 1rem 0;
   font-weight: 600;
 }
 .markdown-body :deep(li) {
-  margin-bottom: 0.5rem;
+  margin: 0.45rem 0;
+}
+.markdown-body :deep(li > p) {
+  margin: 0;
+}
+.markdown-body :deep(li > p + p) {
+  margin-top: 0.5rem;
+}
+.markdown-body :deep(li > ul),
+.markdown-body :deep(li > ol) {
+  margin-top: 0.5rem;
 }
 .markdown-body :deep(p) {
   margin: 1rem 0;
@@ -101,11 +117,11 @@ const html = computed(() => md.render(props.content || ''))
 .markdown-body :deep(blockquote) {
   margin: 1.5rem 0;
   font-style: italic;
-  background: #e0e7ff;
+  background: var(--markdown-blockquote-bg, #e0e7ff);
   padding: 1.25rem;
-  border: 3px solid #000;
+  border: 3px solid var(--markdown-border, #000);
   border-radius: 0.75rem;
-  box-shadow: 4px 4px 0px 0px #000;
+  box-shadow: 4px 4px 0px 0px var(--markdown-shadow, #000);
   font-weight: 600;
 }
 .markdown-body :deep(a) {
@@ -117,5 +133,19 @@ const html = computed(() => md.render(props.content || ''))
 .markdown-body :deep(a:hover) {
   background: #fef08a;
   color: #000;
+}
+
+:global(:root[data-theme='dark']) .markdown-body {
+  --markdown-border: #d6dae0;
+  --markdown-shadow: #0a0c10;
+  --markdown-pre-bg: #131823;
+  --markdown-inline-code-bg: #374151;
+  --markdown-inline-code-text: #f3f4f6;
+  --markdown-blockquote-bg: #1f2937;
+}
+
+:global(:root[data-theme='dark']) .markdown-body :deep(a:hover) {
+  background: #334155;
+  color: #f8fafc;
 }
 </style>

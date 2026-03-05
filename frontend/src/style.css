@@ -8,12 +8,32 @@
 
 :root {
   color-scheme: light;
+  --app-bg: #f4f4f0;
+  --app-text: #05070a;
+  --app-dot: rgba(100, 116, 139, 0.24);
+  --app-selection-bg: #ffeb3b;
+  --app-selection-text: #000;
+  --app-border: #000;
+  --app-surface: #fff;
+  --app-surface-muted: #f1f5f9;
   line-height: 1.5;
   font-weight: 500;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-synthesis: none;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --app-bg: #10141b;
+  --app-text: #f5f7fb;
+  --app-dot: rgba(148, 163, 184, 0.2);
+  --app-selection-bg: #facc15;
+  --app-selection-text: #111827;
+  --app-border: #d6dae0;
+  --app-surface: #1b2027;
+  --app-surface-muted: #2a313d;
 }
 
 *,
@@ -32,10 +52,11 @@ body {
   margin: 0;
   min-width: 320px;
   font-family: var(--font-sans);
-  color: #000;
-  background-color: #f4f4f0;
-  background-image: radial-gradient(#d1d1d1 1.5px, transparent 1.5px);
+  color: var(--app-text);
+  background-color: var(--app-bg);
+  background-image: radial-gradient(var(--app-dot) 1.5px, transparent 1.5px);
   background-size: 24px 24px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
@@ -51,6 +72,92 @@ textarea {
 }
 
 ::selection {
-  background: #ffeb3b;
+  background: var(--app-selection-bg);
+  color: var(--app-selection-text);
+}
+
+.theme-toggle {
+  border: 3px solid var(--app-border);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: translate(-2px, -2px);
+}
+
+.theme-toggle:active {
+  transform: translate(0, 0);
+}
+
+.theme-toggle-light {
+  background: #fff;
   color: #000;
+  box-shadow: 4px 4px 0 0 #000;
+}
+
+.theme-toggle-light:active {
+  box-shadow: 0 0 0 0 #000;
+}
+
+.theme-toggle-dark {
+  background: #0f172a;
+  color: #f8fafc;
+  box-shadow: 4px 4px 0 0 #0a0c10;
+}
+
+.theme-toggle-dark:active {
+  box-shadow: 0 0 0 0 #0a0c10;
+}
+
+:root[data-theme='dark'] .bg-white {
+  background-color: var(--app-surface) !important;
+}
+
+:root[data-theme='dark'] .bg-slate-100 {
+  background-color: var(--app-surface-muted) !important;
+}
+
+:root[data-theme='dark'] .border-black {
+  border-color: var(--app-border) !important;
+}
+
+:root[data-theme='dark'] .border-black\/40 {
+  border-color: rgba(214, 218, 224, 0.45) !important;
+}
+
+:root[data-theme='dark'] .text-black {
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='dark'] .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+:root[data-theme='dark'] .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+:root[data-theme='dark'] .text-blue-600 {
+  color: #93c5fd !important;
+}
+
+:root[data-theme='dark'] input:not([type='file']),
+:root[data-theme='dark'] select,
+:root[data-theme='dark'] textarea {
+  background-color: #111827;
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+:root[data-theme='dark'] input::placeholder,
+:root[data-theme='dark'] textarea::placeholder {
+  color: #94a3b8;
 }
