@@ -25,7 +25,6 @@ class Topic(BaseModel):
     title = models.CharField(max_length=500)
     question_id = models.IntegerField(unique=True)
     index = models.IntegerField(default=0)
-    source_url = models.URLField(blank=True, max_length=500)
     short_answer = models.TextField(blank=True)
     detailed_explanation = models.TextField(blank=True)
     raw_markdown = models.TextField(blank=True)

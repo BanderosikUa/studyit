@@ -15,7 +15,7 @@ CATEGORIES = [
     ("python", "Python", 4),
     ("tools-devops-linux", "Tools / DevOps / Linux", 5),
     ("algorithms", "Алгоритми", 6),
-    ("architecture", "Архітектура", 7),
+    ("system-design", "System Design", 7),
     ("async", "Асинхронність", 8),
     ("databases", "Бази даних", 9),
     ("oop", "ООП", 10),
@@ -27,16 +27,22 @@ CATEGORIES = [
 CATEGORY_NAME_TO_SLUG = {name: slug for slug, name, _ in CATEGORIES}
 # Variant spelling in some .md files
 CATEGORY_NAME_TO_SLUG["Tools / Devops / Linux"] = "tools-devops-linux"
+CATEGORY_NAME_TO_SLUG["Архітектура"] = "system-design"
+CATEGORY_NAME_TO_SLUG["Architecture"] = "system-design"
 
 SHORT_ANSWER_HEADING = "### 1️⃣ Як коротко відповісти"
 DETAILED_HEADING = "### 2️⃣ Детальне пояснення теми"
-ID_PATTERN = re.compile(r"- ID: `(\d+)`")
 INDEX_PATTERN = re.compile(r"- Index: `(\d+)`")
-URL_PATTERN = re.compile(r"- URL: (.+)")
+FILE_PATTERN = re.compile(r"^\d{4}_q(\d+)$")  # NNNN_qID.md -> question_id
 CATEGORY_PATTERN = re.compile(r"- Category:\s*(.+)")
 
 
 def parse_md_file(path: Path) -> dict | None:
+    name = path.stem
+    m = FILE_PATTERN.match(name)
+    if not m:
+        return None
+    question_id = int(m.group(1))
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
     if not lines:
@@ -44,26 +50,15 @@ def parse_md_file(path: Path) -> dict | None:
     title = lines[0].strip()
     if title.startswith("# "):
         title = title[2:].strip()
-    id_match = None
     index_val = 0
-    url_val = ""
     category_name = ""
     for line in lines[1:15]:
-        id_m = ID_PATTERN.search(line)
-        if id_m:
-            id_match = int(id_m.group(1))
         idx_m = INDEX_PATTERN.search(line)
         if idx_m:
             index_val = int(idx_m.group(1))
-        url_m = URL_PATTERN.search(line)
-        if url_m:
-            url_val = url_m.group(1).strip()
         cat_m = CATEGORY_PATTERN.search(line)
         if cat_m:
             category_name = cat_m.group(1).strip()
-    if id_match is None:
-        return None
-    question_id = id_match
     slug = CATEGORY_NAME_TO_SLUG.get(category_name) if category_name else None
     short_answer = ""
     detailed_explanation = ""
@@ -83,7 +78,6 @@ def parse_md_file(path: Path) -> dict | None:
         "question_id": question_id,
         "index": index_val,
         "title": title,
-        "source_url": url_val,
         "short_answer": short_answer,
         "detailed_explanation": detailed_explanation,
         "raw_markdown": text,
@@ -135,10 +129,6 @@ class Command(BaseCommand):
         updated = 0
         skipped = 0
         for md_path in md_files:
-            name = md_path.stem
-            if not re.match(r"^\d{4}_q\d+$", name):
-                skipped += 1
-                continue
             parsed = parse_md_file(md_path)
             if not parsed:
                 skipped += 1
@@ -161,7 +151,6 @@ class Command(BaseCommand):
                     "category": category,
                     "title": parsed["title"],
                     "index": parsed["index"],
-                    "source_url": parsed["source_url"] or "",
                     "short_answer": parsed["short_answer"],
                     "detailed_explanation": parsed["detailed_explanation"],
                     "raw_markdown": parsed["raw_markdown"],

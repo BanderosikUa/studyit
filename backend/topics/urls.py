@@ -5,10 +5,19 @@ from topics.apis import (
     NoteDeleteApi,
     NoteListApi,
     NoteUpdateApi,
+    ProgressExportApi,
+    ProgressImportApi,
+    ProgressStatsApi,
     TopicDetailApi,
     TopicListApi,
     TopicStatusUpdateApi,
 )
+
+progress_patterns = [
+    path("export/", ProgressExportApi.as_view(), name="export"),
+    path("import/", ProgressImportApi.as_view(), name="import"),
+    path("stats/", ProgressStatsApi.as_view(), name="stats"),
+]
 
 urlpatterns = [
     path("categories/", CategoryListApi.as_view(), name="categories"),

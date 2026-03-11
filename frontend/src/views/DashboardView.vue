@@ -85,7 +85,7 @@ async function doImport() {
           </div>
         </div>
       </div>
-      <div class="rounded-2xl border-[3px] border-black bg-[#c7d2fe] p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mt-8">
+      <div class="panel-secondary rounded-2xl border-[3px] border-black bg-[#c7d2fe] p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mt-8">
         <h2 class="font-display font-bold text-2xl uppercase border-b-2 border-black pb-2 mb-4">Експорт / імпорт</h2>
         <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
           <button

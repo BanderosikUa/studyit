@@ -1,0 +1,21 @@
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["backend"]
+extend-exclude = [
+    "venv",
+    "frontend",
+    "python_split_uk_ext_full4",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["accounts", "config", "core", "topics", "trainer"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false

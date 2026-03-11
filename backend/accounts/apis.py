@@ -31,7 +31,8 @@ class RegisterApi(APIView):
             "access": str(tokens.access_token),
             "refresh": str(tokens),
         }
-        return Response(data, status=status.HTTP_201_CREATED)
+        output = self.OutputSerializer(instance=data)
+        return Response(output.data, status=status.HTTP_201_CREATED)
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -53,14 +54,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 class LoginApi(CustomTokenObtainPairView):
     permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        data = request.data.copy()
-        if "email" in data and "username" not in data:
-            data["username"] = data["email"]
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
 class RefreshApi(TokenRefreshView):

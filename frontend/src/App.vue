@@ -68,24 +68,47 @@ watch(theme, (value) => {
 
 <template>
   <div class="min-h-screen flex flex-col font-sans">
-    <div class="fixed right-4 top-4 z-30">
+    <div v-if="!isAuthenticated" class="fixed right-4 top-4 z-30">
       <button
         type="button"
         class="theme-toggle"
         :class="isDarkTheme ? 'theme-toggle-dark' : 'theme-toggle-light'"
+        :aria-label="isDarkTheme ? 'Увімкнути світлу тему' : 'Увімкнути темну тему'"
+        :title="isDarkTheme ? 'Світла тема' : 'Темна тема'"
         @click="toggleTheme"
       >
-        {{ isDarkTheme ? 'Темна тема' : 'Світла тема' }}
+        <span class="theme-toggle-track">
+          <span class="theme-toggle-icon theme-toggle-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-toggle-icon theme-toggle-icon-moon" aria-hidden="true">☾</span>
+          <span class="theme-toggle-thumb" aria-hidden="true" />
+        </span>
       </button>
     </div>
     <nav v-if="isAuthenticated" class="border-b-4 border-black bg-white sticky top-0 z-20 shadow-[0_4px_0_0_rgba(0,0,0,1)] mb-8">
       <div class="w-full max-w-[1180px] mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-center md:justify-between gap-4">
-        <router-link :to="{ name: 'Dashboard' }" class="flex items-center justify-center md:justify-start gap-3 group w-full md:w-auto">
-          <div class="w-10 h-10 bg-[#bbf7d0] group-hover:bg-[#fef08a] transition-colors rounded-xl border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 group-active:translate-y-0 group-active:translate-x-0 group-active:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]">
-            <div class="w-4 h-4 bg-black rounded-full"></div>
-          </div>
-          <span class="font-display font-black text-2xl tracking-tight uppercase" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.15);">StudyIt</span>
-        </router-link>
+        <div class="flex items-center justify-center md:justify-start gap-4 w-full md:w-auto">
+          <button
+            type="button"
+            class="theme-toggle shrink-0"
+            :class="isDarkTheme ? 'theme-toggle-dark' : 'theme-toggle-light'"
+            :aria-label="isDarkTheme ? 'Увімкнути світлу тему' : 'Увімкнути темну тему'"
+            :title="isDarkTheme ? 'Світла тема' : 'Темна тема'"
+            @click="toggleTheme"
+          >
+            <span class="theme-toggle-track">
+              <span class="theme-toggle-icon theme-toggle-icon-sun" aria-hidden="true">☀</span>
+              <span class="theme-toggle-icon theme-toggle-icon-moon" aria-hidden="true">☾</span>
+              <span class="theme-toggle-thumb" aria-hidden="true" />
+            </span>
+          </button>
+          
+          <router-link :to="{ name: 'Dashboard' }" class="flex items-center gap-3 group shrink-0">
+            <div class="w-10 h-10 bg-[#bbf7d0] group-hover:bg-[#fef08a] transition-colors rounded-xl border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 group-active:translate-y-0 group-active:translate-x-0 group-active:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]">
+              <div class="w-4 h-4 bg-black rounded-full"></div>
+            </div>
+            <span class="font-display font-black text-2xl tracking-tight uppercase" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.15);">StudyIt</span>
+          </router-link>
+        </div>
         
         <div class="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
           <router-link
@@ -95,7 +118,7 @@ watch(theme, (value) => {
             class="px-5 py-2 rounded-full border-[3px] border-black font-display font-bold text-sm transition-all"
             :class="[
               isActiveLink(item.names)
-                ? 'bg-[#c7d2fe] shadow-[4px_4px_0px_0px_#000] -translate-y-[2px] -translate-x-[2px]'
+                ? 'bg-[#c7d2fe] text-black shadow-[4px_4px_0px_0px_#000] -translate-y-[2px] -translate-x-[2px]'
                 : 'bg-white hover:bg-[#fef08a] shadow-[0px_0px_0px_0px_#000] hover:shadow-[4px_4px_0px_0px_#000] hover:-translate-y-[2px] hover:-translate-x-[2px] active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_0px_#000]'
             ]"
           >

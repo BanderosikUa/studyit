@@ -23,11 +23,12 @@ class SessionCreateApi(ApiAuthMixin, APIView):
     class OutputSerializer(serializers.Serializer):
         id = serializers.IntegerField()
         total_questions = serializers.IntegerField()
-        category_slug = serializers.SerializerMethodField()
+        category_slug = serializers.CharField(
+            source="category.slug",
+            allow_null=True,
+            read_only=True,
+        )
         completed = serializers.BooleanField()
-
-        def get_category_slug(self, obj):
-            return obj.category.slug if obj.category else None
 
     def post(self, request):
         serializer = self.InputSerializer(data=request.data)
@@ -44,25 +45,21 @@ class SessionCreateApi(ApiAuthMixin, APIView):
 
 class SessionDetailApi(ApiAuthMixin, APIView):
     class OutputSerializer(serializers.Serializer):
+        class QuestionSerializer(serializers.Serializer):
+            topic_id = serializers.IntegerField()
+            title = serializers.CharField(source="topic.title")
+            user_answer = serializers.CharField()
+            self_score = serializers.IntegerField(allow_null=True)
+
         id = serializers.IntegerField()
         total_questions = serializers.IntegerField()
-        category_slug = serializers.SerializerMethodField()
+        category_slug = serializers.CharField(
+            source="category.slug",
+            allow_null=True,
+            read_only=True,
+        )
         completed = serializers.BooleanField()
-        questions = serializers.SerializerMethodField()
-
-        def get_category_slug(self, obj):
-            return obj.category.slug if obj.category else None
-
-        def get_questions(self, obj):
-            return [
-                {
-                    "topic_id": a.topic_id,
-                    "title": a.topic.title,
-                    "user_answer": a.user_answer,
-                    "self_score": a.self_score,
-                }
-                for a in obj.answers.select_related("topic").order_by("id")
-            ]
+        questions = QuestionSerializer(source="answers", many=True, read_only=True)
 
     def get(self, request, session_id):
         session = trainer_session_get(user=request.user, session_id=session_id)

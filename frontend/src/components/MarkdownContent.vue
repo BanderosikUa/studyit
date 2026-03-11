@@ -8,6 +8,38 @@ const props = defineProps({
   content: { type: String, default: '' },
 })
 
+function normalizeBrokenLists(markdown) {
+  const lines = (markdown || '').replaceAll('\r\n', '\n').split('\n')
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const currentLine = lines[index]
+    const markerMatch = currentLine.match(/^(\s*)([-*+])\s*$/)
+    if (!markerMatch) continue
+
+    let nextLineIndex = index + 1
+    while (nextLineIndex < lines.length && lines[nextLineIndex].trim() === '') {
+      nextLineIndex += 1
+    }
+    if (nextLineIndex >= lines.length) continue
+
+    const nextLine = lines[nextLineIndex].trim()
+    if (!nextLine) continue
+
+    if (
+      /^(```|~~~|>|#{1,6}\s)/.test(nextLine) ||
+      /^([-*+]\s+|\d+\.\s+)/.test(nextLine) ||
+      /^(\|.+\||---+$|\*\*\*+$|___+$)/.test(nextLine)
+    ) {
+      continue
+    }
+
+    lines[index] = `${markerMatch[1]}${markerMatch[2]} ${nextLine}`
+    lines.splice(index + 1, nextLineIndex - index)
+  }
+
+  return lines.join('\n')
+}
+
 const md = new MarkdownIt({
   highlight(str, lang) {
     if (lang && hljs.getLanguage(lang)) {
@@ -19,7 +51,7 @@ const md = new MarkdownIt({
   },
 })
 
-const html = computed(() => md.render(props.content || ''))
+const html = computed(() => md.render(normalizeBrokenLists(props.content)))
 </script>
 
 <template>
@@ -56,6 +88,10 @@ const html = computed(() => md.render(props.content || ''))
   border: none;
   font-weight: 500;
   color: inherit;
+}
+.markdown-body :deep(pre code.hljs) {
+  background: transparent;
+  color: var(--markdown-code-text, inherit);
 }
 .markdown-body :deep(h1) {
   font-family: var(--font-display, 'Space Grotesk', sans-serif);
@@ -133,19 +169,5 @@ const html = computed(() => md.render(props.content || ''))
 .markdown-body :deep(a:hover) {
   background: #fef08a;
   color: #000;
-}
-
-:global(:root[data-theme='dark']) .markdown-body {
-  --markdown-border: #d6dae0;
-  --markdown-shadow: #0a0c10;
-  --markdown-pre-bg: #131823;
-  --markdown-inline-code-bg: #374151;
-  --markdown-inline-code-text: #f3f4f6;
-  --markdown-blockquote-bg: #1f2937;
-}
-
-:global(:root[data-theme='dark']) .markdown-body :deep(a:hover) {
-  background: #334155;
-  color: #f8fafc;
 }
 </style>

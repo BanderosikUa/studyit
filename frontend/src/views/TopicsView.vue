@@ -21,7 +21,7 @@ const CATEGORY_BADGE_COLORS = {
   python: 'bg-[#bbf7d0]',
   'tools-devops-linux': 'bg-[#fed7aa]',
   algorithms: 'bg-[#e9d5ff]',
-  architecture: 'bg-[#fee2e2]',
+  'system-design': 'bg-[#fee2e2]',
   async: 'bg-[#bae6fd]',
   databases: 'bg-[#fef08a]',
   oop: 'bg-[#ddd6fe]',
@@ -39,17 +39,18 @@ async function loadCategories() {
 async function loadTopics() {
   loading.value = true
   try {
+    const requestedOffset = (page.value - 1) * pageSize.value
     const { data } = await topicsApi.getTopics({
       category: categorySlug.value || undefined,
       status: statusFilter.value || undefined,
       search: search.value || undefined,
-      page: page.value,
-      page_size: pageSize.value,
+      limit: pageSize.value,
+      offset: requestedOffset,
     })
     topics.value = data.results || []
-    total.value = data.total ?? topics.value.length
-    page.value = data.page ?? page.value
-    pageSize.value = data.page_size ?? pageSize.value
+    total.value = data.count ?? topics.value.length
+    pageSize.value = data.limit ?? pageSize.value
+    page.value = Math.floor((data.offset ?? requestedOffset) / pageSize.value) + 1
   } finally {
     loading.value = false
   }
@@ -96,8 +97,8 @@ function categoryBadgeClass(slug) {
         v-for="cat in categories"
         :key="cat.slug"
         :to="{ name: 'Topics', query: { category: cat.slug } }"
-        class="block rounded-xl border-[3px] border-transparent px-3 py-2 text-base font-medium transition-all"
-        :class="categorySlug === cat.slug ? 'bg-[#fef08a] border-black shadow-[4px_4px_0px_0px_#000] -translate-y-0.5' : 'hover:bg-white hover:border-black hover:shadow-[4px_4px_0px_0px_#000] hover:-translate-y-0.5'"
+        class="category-filter-item block rounded-xl border-[3px] border-transparent px-3 py-2 text-base font-medium transition-all"
+        :class="categorySlug === cat.slug ? 'category-filter-item-active bg-[#fef08a] border-black shadow-[4px_4px_0px_0px_#000] -translate-y-0.5' : 'hover:bg-white hover:border-black hover:shadow-[4px_4px_0px_0px_#000] hover:-translate-y-0.5'"
       >
         {{ cat.name }}
         <span class="font-display font-bold ml-1">({{ cat.total_topics }})</span>
@@ -133,7 +134,7 @@ function categoryBadgeClass(slug) {
           </div>
           <div class="flex flex-wrap items-center gap-2 shrink-0">
             <span
-              class="inline-block shrink-0 rounded-lg border-2 border-black px-3 py-1 font-display font-bold text-sm shadow-[2px_2px_0px_0px_#000]"
+              class="topic-status-pill inline-block shrink-0 rounded-lg border-2 border-black px-3 py-1 font-display font-bold text-sm shadow-[2px_2px_0px_0px_#000]"
               :class="{
                 'bg-[#a5f3fc]': t.status === 'new',
                 'bg-[#4ade80]': t.status === 'studied',

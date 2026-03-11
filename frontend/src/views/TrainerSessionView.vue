@@ -71,7 +71,7 @@ function skip() {
   <div v-else class="mx-auto max-w-2xl space-y-8 mt-4">
     <div class="flex items-center justify-between">
       <h1 class="text-3xl font-display font-black uppercase tracking-tight">Тренажер</h1>
-      <span class="font-display font-bold text-xl px-3 py-1 bg-[#fcd34d] border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_#000]">{{ currentIndex + 1 }} / {{ session.questions?.length || 0 }}</span>
+      <span class="font-display font-bold text-xl text-black px-3 py-1 bg-[#fcd34d] border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_#000]">{{ currentIndex + 1 }} / {{ session.questions?.length || 0 }}</span>
     </div>
     <div class="h-4 overflow-hidden rounded-full border-[3px] border-black bg-slate-100">
       <div class="h-full bg-[#a5f3fc] border-r-[3px] border-black transition-all duration-300 ease-out" :style="{ width: progressPct + '%' }" />

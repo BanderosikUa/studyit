@@ -29,7 +29,7 @@ async function copyPrompt() {
 <template>
   <div class="mx-auto max-w-3xl space-y-8 mt-6">
     <h1 class="text-4xl font-display font-black uppercase tracking-tight">Результати тренажера</h1>
-    <div v-if="session" class="rounded-2xl border-[3px] border-black bg-[#c7d2fe] p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+    <div v-if="session" class="panel-secondary rounded-2xl border-[3px] border-black bg-[#c7d2fe] p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
       <h2 class="mb-4 font-display font-bold text-2xl uppercase border-b-2 border-black pb-2">Промпт для ChatGPT</h2>
       <p class="mb-6 font-medium text-lg">Скопіюйте текст нижче та вставте в ChatGPT для оцінки відповідей.</p>
       <div class="relative">
