@@ -92,7 +92,10 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
 }
+
+SESSION_COOKIE_AGE = int(timedelta(days=30).total_seconds())
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 CORS_ALLOWED_ORIGINS = []
